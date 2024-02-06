@@ -1,76 +1,81 @@
-public class Money {
+public class Money{
     private long dollars;
     private long cents;
+
+    public Money(long dollars, long cents) 
+    {
+        this.dollars = dollars;
+        this.cents = cents;
+        addDollar();
+    }
 
     public Money(double amount) 
     {
         this.dollars = (long) amount;
-        this.cents = Math.round((amount - this.dollars) * 100);
+        this.cents = (long) Math.round((amount - dollars) * 100);
+        addDollar();
     }
 
-    public Money(Money otherObject) 
+    public Money(Money other) 
     {
-        this.dollars = otherObject.dollars;
-        this.cents = otherObject.cents;
+        this.dollars = other.dollars;
+        this.cents = other.cents;
     }
 
-    public Money add(Money otherAmount) 
+    private void addDollar() 
     {
-        long newDollars = this.dollars + otherAmount.dollars;
-        long newCents = this.cents + otherAmount.cents;
-
-        if (newCents >= 100) 
+        while (cents >= 100) 
         {
-            newDollars += newCents / 100;
-            newCents %= 100;
-        }
-
-        return new Money(newDollars + (double) newCents / 100);
-    }
-
-    public int subtract(Money otherAmount) 
-    {
-        double thisAmount = this.dollars + (double) this.cents / 100;
-        double otherAmountValue = otherAmount.dollars + (double) otherAmount.cents / 100;
-
-        double difference = thisAmount - otherAmountValue;
-
-        if (difference > 0) 
-        {
-            return 1;
-        } else if (difference < 0) 
-        {
-            return -1;
-        } else 
-        {
-            return 0;
+            dollars++;
+            cents -= 100;
         }
     }
 
-    public int compareTo(Money otherObject) 
+    public Money add(Money other) 
     {
-        double thisAmount = this.dollars + (double) this.cents / 100;
-        double otherAmountValue = otherObject.dollars + (double) otherObject.cents / 100;
+        long newCents = this.cents + other.cents;
+        long newDollars = this.dollars + other.dollars;
 
-        if (thisAmount > otherAmountValue) 
-        {
-            return 1;
-        } else if (thisAmount < otherAmountValue) 
-        {
-            return -1;
-        } else 
-        {
-            return 0;
-        }
+        Money result = new Money(newDollars, newCents);
+        result.addDollar();
+        return result;
     }
 
-    public boolean equals(Money otherObject) 
+    public Money subtract(Money other) 
     {
-        return this.dollars == otherObject.dollars && this.cents == otherObject.cents;
+        long totalCentsThis = this.dollars * 100 + this.cents;
+        long totalCentsOther = other.dollars * 100 + other.cents;
+        if (totalCentsThis < totalCentsOther) 
+        {
+            System.out.println("Not enough funds to subtract");
+        }
+
+        long newCents = totalCentsThis - totalCentsOther;
+        Money result = new Money(newCents / 100, newCents % 100);
+        return result; 
+    }
+
+    public int compareTo(Money other) 
+    {
+        if (this.dollars > other.dollars) return 1;
+        if (this.dollars < other.dollars) return -1;
+        if (this.cents > other.cents) return 1;
+        if (this.cents < other.cents) return -1;
+        return 0;
+    }
+
+    public boolean equals(Object obj) 
+    {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        Money money = (Money) obj;
+
+        return dollars == money.dollars && cents == money.cents;
     }
 
     public String toString() 
     {
-        return "$" + dollars + "." + cents;
+        return String.format("$%d.%02d", dollars, cents);
     }
 }
